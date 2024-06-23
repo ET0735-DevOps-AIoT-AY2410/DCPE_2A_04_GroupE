@@ -30,7 +30,7 @@ def check_password():
         lcd.lcd_display_string("Put finger  0")
         if pin == [0]:#does not work for now it doesnt show main menu it displays enter password ****
             sleep(3)
-            lcd.lcd_clear
+            lcd.lcd_clear()
             lcd.lcd_display_string("main menu",1)
             pin.clear()  # Clear current pin entry
             keypad.disable()  # Disable keypad input
