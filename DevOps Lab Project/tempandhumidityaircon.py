@@ -8,19 +8,6 @@ tempvalue = []
 optionvalue = [] 
 
 
-def get_temperature():   #ADD THIS WHOLE FUNCTION IN MAIN MENU FOR LINE 4 !!!
-    # Read the temperature from the sensor
-    
-    tempandhumidity = TEMP_HUMIDITY.read_temp_humidity()
-    return tempandhumidity
-
-def display_temperature():  #ADD THIS WHOLE FUNCTION IN MAIN MENU FOR LINE 4 !!!
-    tempandhumidity = get_temperature()
-    lcd.clear()
-    lcd.lcd_display_string ("Temperature = %-3.1f C" % tempandhumidity.temperature, 0)
-    lcd.lcd_display_string ("Humidity: %-3.1f %%" % tempandhumidity.humidity, 1)
-    
-    time.sleep(2)
 
 
 
@@ -58,9 +45,7 @@ def main():
     global optionvalue #value of number/s keyed in
     global option #number keyed in
     optionvalue.append(option)
-    if optionvalue == "2":  #if option 2 is chosen
-        
-        display_temperature()
+    if optionvalue == "2":  #if option 2 is chosen to control aircon temp
         enter_desired_temperature()
 
 if __name__ == "__main__":
