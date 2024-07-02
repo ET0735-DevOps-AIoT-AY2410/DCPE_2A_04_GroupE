@@ -12,11 +12,7 @@ def start_engine():
     print(f"Card ID: {card_id}")
 
     # Example list of authorized IDs
-<<<<<<< HEAD
-    authorized_ids = [1234567890, 2345678901, 3456789012,830894050716]
-=======
-    authorized_ids = [1234567890, 2345678901, 3456789012]
->>>>>>> 7416de517a41a62ad2032292266d4e2f8ba460a0
+    authorized_ids = [1234567890, 2345678901, 3456789012, 830894050716]
 
     if card_id not in authorized_ids:
         print("RFID authorization failed. Engine start aborted.")
