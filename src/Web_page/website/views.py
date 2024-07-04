@@ -34,7 +34,7 @@ def car_menu():
 @login_required
 def lock_unlock_door():
     action = request.form.get('action')
-    script = "path_to_your_script/door.py"
+    script = "Door.py"
     if action == "lock":
         try:
             result = subprocess.run(["python", script, "lock"], check=True, capture_output=True, text=True)
