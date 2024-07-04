@@ -3,9 +3,9 @@ from hal import hal_lcd as lcd
 from hal import hal_ldr_sensor as ldr
 
 def get_fuel_level(light_intensity):
-    if light_intensity < 17:
+    if light_intensity > 3 :
         return "High"
-    elif 17 <= light_intensity < 17:
+    elif 1 <= light_intensity < 3:
         return "Medium"
     else:
         return "Low"
