@@ -29,3 +29,26 @@ def carstart():
 def car_menu():
     return render_template("car_menu.html", user=current_user)
 
+
+@views.route('/lock_unlock_door', methods=['POST'])
+@login_required
+def lock_unlock_door():
+    action = request.form.get('action')
+    script = "path_to_your_script/door.py"
+    if action == "lock":
+        try:
+            result = subprocess.run(["python", script, "lock"], check=True, capture_output=True, text=True)
+            print(result.stdout)
+            flash('Door locked successfully!', category='success')
+        except subprocess.CalledProcessError as e:
+            print(e.stderr)
+            flash(f'Error locking door: {e}', category='error')
+    elif action == "unlock":
+        try:
+            result = subprocess.run(["python", script, "unlock"], check=True, capture_output=True, text=True)
+            print(result.stdout)
+            flash('Door unlocked successfully!', category='success')
+        except subprocess.CalledProcessError as e:
+            print(e.stderr)
+            flash(f'Error unlocking door: {e}', category='error')
+    return redirect(url_for('views.car_menu'))

@@ -1,5 +1,6 @@
 import RPi.GPIO as GPIO #import RPi.GPIO module
-
+import time
+from time import sleep
 
 def init():
     global PWM
@@ -15,3 +16,5 @@ def init():
 def set_motor_speed(speed):
     if 0 <= speed <= 100:
         PWM.start(speed)
+        sleep(5)
+        GPIO.output(23,0)
