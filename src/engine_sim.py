@@ -18,3 +18,10 @@ def set_motor_speed(speed):
         PWM.start(speed)
         sleep(5)
         GPIO.output(23,0)
+
+def main():
+    init()
+    set_motor_speed(50)
+
+if __name__ == "__main__":
+    main()
