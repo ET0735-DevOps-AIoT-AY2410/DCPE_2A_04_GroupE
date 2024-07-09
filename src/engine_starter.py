@@ -12,7 +12,6 @@ def start_engine():
     print(f"Card ID: {card_id}")
 
     # Example list of authorized IDs
-
     authorized_ids = [1234567890, 2345678901, 3456789012, 830894050716]
 
 
