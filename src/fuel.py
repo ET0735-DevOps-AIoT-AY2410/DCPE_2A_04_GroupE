@@ -1,16 +1,9 @@
 import time
 from hal import hal_lcd as lcd
 from hal import hal_ldr_sensor as ldr
+import requests
 
-def get_fuel_level(light_intensity):
-    if light_intensity > 3 :
-        return "High"
-    elif 1 <= light_intensity < 3:
-        return "Medium"
-    else:
-        return "Low"
-
-def main():
+def get_fuel_level():
     lcd_display = lcd.lcd()
     channel = 0  # Assuming that the LDR is connected to channel 0 of MCP3008
 
@@ -23,5 +16,29 @@ def main():
 
         time.sleep(1)
 
-if __name__ == "__main__":
-    main()
+
+fuel_level = get_fuel_level()
+
+# URL of your Flask endpoint
+url = 'http://127.0.0.1:5000/update-fuel-level'
+
+# Data to be sent to the Flask app
+data = {'fuel_level': fuel_level}
+
+response = requests.post(url, json=data)
+
+if response.status_code == 200:
+    print("Fuel level updated successfully.")
+else:
+    print("Error updating fuel level:", response.text)
+
+
+
+
+#def get_fuel_level(light_intensity):
+#    if light_intensity > 3 :
+#        return "High"
+#    elif 1 <= light_intensity < 3:
+#        return "Medium"
+#    else:
+#        return "Low"

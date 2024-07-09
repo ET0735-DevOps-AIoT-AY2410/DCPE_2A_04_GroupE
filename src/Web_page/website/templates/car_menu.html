@@ -53,13 +53,11 @@
             border-radius: 5px;
             transition: background-color 0.2s ease;
             margin: 5px 0;
+            background-color: lightgray; /* Default background color */
         }
         .lock-buttons button.selected {
-            background-color: red;
-            color: white;
-        }
-        .lock-buttons button:not(.selected) {
-            background-color: lightgray;
+            background-color: red; /* Background color when selected */
+            color: white; /* Text color when selected */
         }
         .aircon-container {
             display: flex;
@@ -98,8 +96,10 @@
         <div class="control-container">
             <div class="lock-buttons">
                 <h3>Car Door</h3>
-                <button id="lockButton" class="selected" onclick="toggleLock('lock')">Lock</button>
-                <button id="unlockButton" onclick="toggleLock('unlock')">Unlock</button>
+                <form method="post" action="{{ url_for('views.lock_unlock_door') }}">
+                    <button type="submit" name="action" value="lock"  id="lockButton" class="selected" onclick="toggleLock('lock')">Lock</button>
+                    <button type="submit" name="action" value="unlock" id="unlockButton"onclick="toggleLock('unlock')">Unlock</button>
+                </form>
             </div>
 
             <div class="aircon-container">
@@ -112,7 +112,7 @@
     </div>
 
     <script>
-        let isLocked = true;
+        let isLocked = false;
 
         // Load the air conditioning temperature from local storage on startup
         document.addEventListener('DOMContentLoaded', (event) => {
@@ -123,38 +123,6 @@
             }
         });
 
-        function toggleLock(action) {
-            if (action === 'lock') {
-                isLocked = true;
-                document.getElementById('lockButton').classList.add('selected');
-                document.getElementById('unlockButton').classList.remove('selected');
-            } else {
-                isLocked = false;
-                document.getElementById('lockButton').classList.remove('selected');
-                document.getElementById('unlockButton').classList.add('selected');
-            }
-
-            // Send the lock/unlock action to the server
-            fetch('/lock_unlock_door', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ action: action })
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    console.log(`Car is now ${isLocked ? 'locked' : 'unlocked'}`);
-                } else {
-                    console.error(`Error: ${data.error}`);
-                }
-            })
-            .catch((error) => {
-                console.error('Error:', error);
-            });
-        }
-
         function enterAirconTemperature() {
             const airconInput = document.getElementById('airconInput');
             const airconTemperature = airconInput.value;
@@ -162,7 +130,10 @@
             localStorage.setItem('airconTemperature', airconTemperature); // Save to local storage
             console.log(`Aircon Temperature set to ${airconTemperature}°C`);
         }
+
+
+
     </script>
 </body>
 </html>
-{% endblock %}
+{% endblock %}  
