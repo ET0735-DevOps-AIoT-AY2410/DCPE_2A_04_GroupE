@@ -2,7 +2,7 @@ import time
 
 import RPi.GPIO as GPIO
 
-from ..Web_page.website import dht11
+from . import dht11
 
 def init():
     GPIO.setmode(GPIO.BCM)
@@ -26,4 +26,3 @@ def read_temp_humidity():
         ret[1] = result.humidity
 
     return ret
-

@@ -7,13 +7,10 @@ import subprocess
 from flask import Flask, render_template
 import threading
 import time
-import temp as get_temperature
-from website import create_app
+from website import temp
 
-app = create_app()
 views = Blueprint('views', __name__)
 
-temperature = 0
 
 
 @views.route('/', methods=['GET', 'POST'])
@@ -63,22 +60,9 @@ def lock_unlock_door():
             flash(f'Error unlocking door: {e}', category='error')
     return redirect(url_for('views.car_menu'))
 
-@views.route('/')
-def index():
-    global current_temperature
-    if current_temperature is None:
-        current_temperature = "Loading..."
-    return render_template('car_menu.html', current_temperature=current_temperature)
 
 @views.route('/get_temperature')
-def get_temperature_route():
-    global current_temperature
-    return jsonify(temperature=current_temperature)
-
-if __name__ == '__main__':
-    # Start the temperature reading thread
-    temperature_thread = threading.Thread(target=get_temperature.read_temp_humidity)
-    temperature_thread.daemon = True
-    temperature_thread.start()
-    # Run the Flask server
-    app.run(host='0.0.0.0', port=5000)
+@login_required
+def get_temperature():
+    temperature = temp.read_temp_humidity()
+    return jsonify({'temperature': temperature})
