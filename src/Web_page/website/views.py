@@ -8,7 +8,7 @@ from flask import Flask, render_template
 import threading
 import time
 from website import temp
-
+from website import fuel
 views = Blueprint('views', __name__)
 
 
@@ -66,3 +66,26 @@ def lock_unlock_door():
 def get_temperature():
     temperature = temp.read_temp_humidity()
     return jsonify({'temperature': temperature})
+    
+@views.route('/get_FuelLevel')
+@login_required
+def get_FuelLevel():
+    FuelLevel = fuel.get_fuel_level(0)
+    return jsonify({'fuel': FuelLevel})
+
+@views.route('/set_aircon_temperature', methods=['POST'])
+@login_required
+def set_aircon_temperature():
+    try:
+        data = request.get_json()
+        temperature = data['temperature']
+        
+        # Call the aircon.py script with the temperature argument
+        result = subprocess.run(['python3', 'aircon.py', str(temperature)], capture_output=True, text=True)
+        
+        if result.returncode == 0:
+            return jsonify({'success': True})
+        else:
+            return jsonify({'success': False, 'error': result.stderr}), 500
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)}), 500

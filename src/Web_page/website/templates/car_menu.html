@@ -83,11 +83,11 @@
                 <h3>Car Temperature:</h3>
                 <button onclick="viewTemperature()">View</button>
                 <p id="carTemperature"></p>
-                
             </div>
             <div>
                 <h3>Fuel Level:</h3>
-                <p id="fuelLevel">50%</p>
+                <button onclick="viewFuellevel()">View</button>
+                <p id="FuelLevel"></p>
             </div>
             <div>
                 <h3>Theft Warning:</h3>
@@ -128,18 +128,41 @@
                 })
                 .catch(error => console.error('Error fetching temperature:', error));
         }
-
-        let isLocked = false;
-
-        // Load the air conditioning temperature from local storage on startup
-        document.addEventListener('DOMContentLoaded', (event) => {
-            const savedTemperature = localStorage.getItem('airconTemperature');
-            if (savedTemperature) {
-                document.getElementById('airconInput').value = savedTemperature;
-                document.getElementById('airconTemperature').innerText = `${savedTemperature}°C`;
-            }
-        });
-
+        function viewFuellevel() {
+            fetch('/get_FuelLevel')
+                .then(response => response.json())
+                .then(data => {
+                    const fuelElement = document.getElementById('FuelLevel');
+                    if (data.fuel !== "Loading...") {
+                        fuelElement.innerText = `${data.fuel}`;
+                    } else {
+                        fuelElement.innerText = "Loading...";
+                    }
+                })
+                .catch(error => console.error('Error fetching fuel level:', error));
+        }
+        
+        function enterAirconTemperature() {
+            const airconInput = document.getElementById('airconInput').value;
+            fetch('/set_aircon_temperature', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ temperature: airconInput })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    document.getElementById('airconTemperature').innerText = `${airconInput}°C`;
+                } else {
+                    alert('Error setting temperature: ' + data.error);
+                }
+            })
+            .catch((error) => {
+                console.error('Error:', error);
+            });
+        }
     </script>
 </body>
 </html>
