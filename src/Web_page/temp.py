@@ -1,8 +1,6 @@
 import time
-
 import RPi.GPIO as GPIO
-
-from ..Web_page.website import dht11
+import dht11
 
 def init():
     GPIO.setmode(GPIO.BCM)
@@ -19,11 +17,16 @@ def read_temp_humidity():
     result = dht11_inst.read()
 
     if result.is_valid():
-        #print("Temperature: %-3.1f C" % result.temperature)
-        #print("Humidity: %-3.1f %%" % result.humidity)
+        print("Temperature: %-3.1f C" % result.temperature)
 
-        ret[0] = result.temperature
-        ret[1] = result.humidity
+        ret= result.temperature
 
     return ret
 
+def main():
+        init()
+        read_temp_humidity()
+    
+
+if __name__ == '__main__':
+    main()
