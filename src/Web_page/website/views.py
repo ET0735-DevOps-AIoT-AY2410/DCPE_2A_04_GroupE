@@ -1,7 +1,5 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash, jsonify
 from flask_login import login_required, current_user
-from .models import Note
-from . import db
 import json
 import subprocess
 from flask import Flask, render_template
@@ -9,9 +7,21 @@ import threading
 import time
 from website import temp
 from website import fuel
+from website import Door
+from website import rfid_checker
+import RPi.GPIO as GPIO
+
+GPIO.setmode(GPIO.BCM)  # choose BCM mode
+GPIO.setwarnings(False)
+GPIO.setup(18, GPIO.OUT)  # set GPIO 18 as output
+GPIO.setup(22,GPIO.IN) #set GPIO 22 as input
+
+    
 views = Blueprint('views', __name__)
 
 
+door_status = "closed"
+theft_detected = False
 
 @views.route('/', methods=['GET', 'POST'])
 @login_required
@@ -35,30 +45,6 @@ def carstart():
 @login_required
 def car_menu():
     return render_template("car_menu.html", user=current_user)
-
-
-@views.route('/lock_unlock_door', methods=['POST'])
-@login_required
-def lock_unlock_door():
-    action = request.form.get('action')
-    script = "Door.py"
-    if action == "lock":
-        try:
-            result = subprocess.run(["python", script, "lock"], check=True, capture_output=True, text=True)
-            print(result.stdout)
-            flash('Door locked successfully!', category='success')
-        except subprocess.CalledProcessError as e:
-            print(e.stderr)
-            flash(f'Error locking door: {e}', category='error')
-    elif action == "unlock":
-        try:
-            result = subprocess.run(["python", script, "unlock"], check=True, capture_output=True, text=True)
-            print(result.stdout)
-            flash('Door unlocked successfully!', category='success')
-        except subprocess.CalledProcessError as e:
-            print(e.stderr)
-            flash(f'Error unlocking door: {e}', category='error')
-    return redirect(url_for('views.car_menu'))
 
 
 @views.route('/get_temperature')
@@ -89,3 +75,49 @@ def set_aircon_temperature():
             return jsonify({'success': False, 'error': result.stderr}), 500
     except Exception as e:
         return jsonify({'success': False, 'error': str(e)}), 500
+    
+@views.route('/get_door_status', methods=['GET'])
+def get_door_status():
+    global door_status, theft_detected
+    return jsonify({"doorStatus": door_status, "theft_status": "Detected" if theft_detected else "Not Triggered"})
+
+@views.route('/lock_unlock_door', methods=['POST'])
+def lock_unlock_door():
+    global door_status
+    data = request.get_json()
+    action = data.get('action')
+    if action == 'lock':
+        Door.lock_door()
+        door_status = 'locked'
+    else:
+        Door.unlock_door()
+        door_status = 'unlocked'
+    return jsonify({"success": True})
+
+
+def check_theft():
+    global theft_detected, door_status
+    while True:
+        print(door_status)
+        if door_status == "locked" and GPIO.input(22) == GPIO.LOW:  # Assuming switch is active low
+            GPIO.output(18, GPIO.HIGH)
+            theft_detected = True
+            time.sleep(5)  # Buzzer active for 5 seconds
+            GPIO.output(18, GPIO.LOW)
+        else:
+            theft_detected = False
+        time.sleep(0.1)
+
+@views.route('/check_rfid_status')
+def check_rfid_status():
+    global rfid_detected
+    if rfid_checker.read():
+        rfid_detected = False
+        return redirect(url_for('views.home'))
+    else:
+        return redirect(url_for('auth.login'))
+
+def start_threads():
+    threading.Thread(target=check_theft, daemon=True).start()
+    threading.Thread(target=check_rfid_status, daemon=True).start()
+

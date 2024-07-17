@@ -93,15 +93,17 @@
                 <h3>Theft Warning:</h3>
                 <p id="theftWarning" class="theft-warning">Not Triggered</p>
             </div>
+            <div>
+                <h3>Door Status:</h3>
+                <p id="doorStatus">Loading...</p>
+            </div>
         </div>
 
         <div class="control-container">
             <div class="lock-buttons">
                 <h3>Car Door</h3>
-                <form method="post" action="{{ url_for('views.lock_unlock_door') }}">
-                    <button type="submit" name="action" value="lock" id="lockButton" class="selected" onclick="toggleLock('lock')">Lock</button>
-                    <button type="submit" name="action" value="unlock" id="unlockButton" onclick="toggleLock('unlock')">Unlock</button>
-                </form>
+                <button id="lockButton" class="selected" onclick="toggleLock('lock')">Lock</button>
+                <button id="unlockButton" onclick="toggleLock('unlock')">Unlock</button>
             </div>
 
             <div class="aircon-container">
@@ -127,7 +129,41 @@
                     }
                 })
                 .catch(error => console.error('Error fetching temperature:', error));
+                fetchDoorStatus();
         }
+
+        function toggleLock(action) {
+            if (action === 'lock') {
+                isLocked = true;
+                document.getElementById('lockButton').classList.add('selected');
+                document.getElementById('unlockButton').classList.remove('selected');
+            } else {
+                isLocked = false;
+                document.getElementById('lockButton').classList.remove('selected');
+                document.getElementById('unlockButton').classList.add('selected');
+            }
+
+            // Send the lock/unlock action to the server
+            fetch('/lock_unlock_door', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ action: action })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    console.log(`Car is now ${isLocked ? 'locked' : 'unlocked'}`);
+                } else {
+                    console.error(`Error: ${data.error}`);
+                }
+            })
+            .catch((error) => {
+                console.error('Error:', error);
+            });
+        }x
+
         function viewFuellevel() {
             fetch('/get_FuelLevel')
                 .then(response => response.json())
@@ -141,6 +177,21 @@
                 })
                 .catch(error => console.error('Error fetching fuel level:', error));
         }
+        
+        function theftstatus() {
+            fetch('/get_theft_status')
+                .then(response => response.json())
+                .then(data => {
+                    const theftElement = document.getElementById('theftWarning');
+                    if (data.theft !== "Loading...") {
+                        theftElement.innerText = `${data.theft}`;
+                    } else {
+                        theftElement.innerText = "Loading...";
+                    }
+                })
+                .catch(error => console.error('Error fetching theft status:', error));
+        }
+
         
         function enterAirconTemperature() {
             const airconInput = document.getElementById('airconInput').value;
@@ -163,6 +214,21 @@
                 console.error('Error:', error);
             });
         }
+        
+        function fetchDoorStatus() {
+            fetch('/get_door_status')
+                .then(response => response.json())
+                .then(data => {
+                    const doorStatus = data.door_status;
+                    document.getElementById('doorStatus').innerText = doorStatus;
+                    document.getElementById('theft_status').innerText = data.theft_status;
+                })
+                .catch(error => console.error('Error fetching door status:', error));
+        }
+
+        // Periodically fetch the door status
+        setInterval(fetchDoorStatus, 5000); // Check every 5 seconds
+
     </script>
 </body>
 </html>
