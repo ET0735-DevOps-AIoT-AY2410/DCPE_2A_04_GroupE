@@ -7,9 +7,9 @@ LED_PIN = 24
 
 def set_led_brightness(temperature):
     if temperature <= 22:
-        brightness = 20  # Dim
+        brightness = 10  # Dim
     elif 23 <= temperature <= 25:
-        brightness = 50  # Less dim
+        brightness = 40 # Less dim
     else:
         brightness = 100  # Bright
 

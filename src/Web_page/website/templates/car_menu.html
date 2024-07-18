@@ -211,7 +211,7 @@
                 }
             })
             .catch((error) => {
-                console.error('Error:', error);
+                console.error('Error:', error); 
             });
         }
         
@@ -225,9 +225,10 @@
                 })
                 .catch(error => console.error('Error fetching door status:', error));
         }
+        
 
         // Periodically fetch the door status
-        setInterval(fetchDoorStatus, 5000); // Check every 5 seconds
+        setInterval(fetchDoorStatus, 1000); // Check every 5 seconds
 
     </script>
 </body>

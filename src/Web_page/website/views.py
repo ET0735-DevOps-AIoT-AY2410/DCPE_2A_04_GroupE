@@ -9,6 +9,7 @@ from website import temp
 from website import fuel
 from website import Door
 from website import rfid_checker
+from website import ultrasound
 import RPi.GPIO as GPIO
 
 GPIO.setmode(GPIO.BCM)  # choose BCM mode
@@ -77,6 +78,7 @@ def set_aircon_temperature():
         return jsonify({'success': False, 'error': str(e)}), 500
     
 @views.route('/get_door_status', methods=['GET'])
+@login_required
 def get_door_status():
     global door_status, theft_detected
     return jsonify({"doorStatus": door_status, "theft_status": "Detected" if theft_detected else "Not Triggered"})
@@ -89,35 +91,32 @@ def lock_unlock_door():
     if action == 'lock':
         Door.lock_door()
         door_status = 'locked'
+        print("locked")
     else:
         Door.unlock_door()
         door_status = 'unlocked'
+        print("unlocked")
     return jsonify({"success": True})
 
 
 def check_theft():
-    global theft_detected, door_status
+    global theft_detected, door_status, rfid_detected
     while True:
-        print(door_status)
         if door_status == "locked" and GPIO.input(22) == GPIO.LOW:  # Assuming switch is active low
             GPIO.output(18, GPIO.HIGH)
             theft_detected = True
             time.sleep(5)  # Buzzer active for 5 seconds
             GPIO.output(18, GPIO.LOW)
+        if door_status == "locked" and ultrasound.get_distance()<10:
+            GPIO.output(18, GPIO.HIGH)
+            theft_detected = True
+            time.sleep(5)  # Buzzer active for 5 seconds  
+            GPIO.output(18, GPIO.LOW)          
         else:
             theft_detected = False
-        time.sleep(0.1)
+        time.sleep(0.1)    
 
-@views.route('/check_rfid_status')
-def check_rfid_status():
-    global rfid_detected
-    if rfid_checker.read():
-        rfid_detected = False
-        return redirect(url_for('views.home'))
-    else:
-        return redirect(url_for('auth.login'))
+
 
 def start_threads():
     threading.Thread(target=check_theft, daemon=True).start()
-    threading.Thread(target=check_rfid_status, daemon=True).start()
-
