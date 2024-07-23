@@ -1,10 +1,28 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash, jsonify
 from flask_login import login_required, current_user
-from .models import Note
-from . import db
 import json
 import subprocess
+from flask import Flask, render_template
+import threading
+import time
+from website import temp
+from website import fuel
+from website import Door
+from website import rfid_checker
+from website import ultrasound
+import RPi.GPIO as GPIO
+
+GPIO.setmode(GPIO.BCM)  # choose BCM mode
+GPIO.setwarnings(False)
+GPIO.setup(18, GPIO.OUT)  # set GPIO 18 as output
+GPIO.setup(22,GPIO.IN) #set GPIO 22 as input
+
+    
 views = Blueprint('views', __name__)
+
+
+door_status = "closed"
+theft_detected = False
 
 @views.route('/', methods=['GET', 'POST'])
 @login_required
@@ -30,25 +48,75 @@ def car_menu():
     return render_template("car_menu.html", user=current_user)
 
 
-@views.route('/lock_unlock_door', methods=['POST'])
+@views.route('/get_temperature')
 @login_required
+def get_temperature():
+    temperature = temp.read_temp_humidity()
+    return jsonify({'temperature': temperature})
+    
+@views.route('/get_FuelLevel')
+@login_required
+def get_FuelLevel():
+    FuelLevel = fuel.get_fuel_level(0)
+    return jsonify({'fuel': FuelLevel})
+
+@views.route('/set_aircon_temperature', methods=['POST'])
+@login_required
+def set_aircon_temperature():
+    try:
+        data = request.get_json()
+        temperature = data['temperature']
+        
+        # Call the aircon.py script with the temperature argument
+        result = subprocess.run(['python3', 'aircon.py', str(temperature)], capture_output=True, text=True)
+        
+        if result.returncode == 0:
+            return jsonify({'success': True})
+        else:
+            return jsonify({'success': False, 'error': result.stderr}), 500
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)}), 500
+    
+@views.route('/get_door_status', methods=['GET'])
+@login_required
+def get_door_status():
+    global door_status, theft_detected
+    return jsonify({"doorStatus": door_status, "theft_status": "Detected" if theft_detected else "Not Triggered"})
+
+@views.route('/lock_unlock_door', methods=['POST'])
 def lock_unlock_door():
-    action = request.form.get('action')
-    script = "Door.py"
-    if action == "lock":
-        try:
-            result = subprocess.run(["python", script, "lock"], check=True, capture_output=True, text=True)
-            print(result.stdout)
-            flash('Door locked successfully!', category='success')
-        except subprocess.CalledProcessError as e:
-            print(e.stderr)
-            flash(f'Error locking door: {e}', category='error')
-    elif action == "unlock":
-        try:
-            result = subprocess.run(["python", script, "unlock"], check=True, capture_output=True, text=True)
-            print(result.stdout)
-            flash('Door unlocked successfully!', category='success')
-        except subprocess.CalledProcessError as e:
-            print(e.stderr)
-            flash(f'Error unlocking door: {e}', category='error')
-    return redirect(url_for('views.car_menu'))
+    global door_status
+    data = request.get_json()
+    action = data.get('action')
+    if action == 'lock':
+        Door.lock_door()
+        door_status = 'locked'
+        print("locked")
+    else:
+        Door.unlock_door()
+        door_status = 'unlocked'
+        print("unlocked")
+    return jsonify({"success": True})
+
+
+def check_theft():
+    global theft_detected, door_status, rfid_detected
+    while True:
+        if door_status == "locked" and GPIO.input(22) == GPIO.LOW:  # Assuming switch is active low
+            GPIO.output(18, GPIO.HIGH)
+            theft_detected = True
+            time.sleep(5)  # Buzzer active for 5 seconds
+            GPIO.output(18, GPIO.LOW)
+        if door_status == "locked" and ultrasound.get_distance()<10:
+            GPIO.output(18, GPIO.HIGH)
+            theft_detected = True
+            time.sleep(5)  # Buzzer active for 5 seconds  
+            GPIO.output(18, GPIO.LOW)          
+        else:
+            theft_detected = False
+        time.sleep(0.1)    
+
+
+
+def start_threads():
+    threading.Thread(target=check_theft, daemon=True).start()
