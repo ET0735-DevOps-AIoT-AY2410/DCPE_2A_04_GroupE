@@ -1,28 +1,52 @@
 import pytest
-import sys
-import os
-
-
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'Web_page')))
-
-from Web_page.website import create_app
+from src.Web_page import create_app, db
+from src.Web_page.website.models import User
+from flask_login import login_user
+from werkzeug.security import generate_password_hash
 
 @pytest.fixture
-def client():
+def app():
     app = create_app()
-    app.config['TESTING'] = True
-    with app.test_client() as client:
-        yield client
+    app.config.update({
+        "TESTING": True,
+        "LOGIN_DISABLED": False,  
+        "WTF_CSRF_ENABLED": False  
+    })
 
-def test_car_start_button(client):
-  
-    response = client.post('/carstart')
-    assert response.status_code == 302  
+    with app.app_context():
+        db.create_all()
+        yield app
+        db.session.remove()
+        db.drop_all()
 
-    
-    response = client.get('/car_menu', follow_redirects=True)
-    assert response.status_code == 200  
-    assert b'Engine started successfully!' in response.data  
+@pytest.fixture
+def client(app):
+    return app.test_client()
 
-if __name__ == '__main__':
+def test_signup_and_carstart(client, app):
+    # Sign up the user
+    response = client.post('/sign-up', data=dict(
+        email='test1@gmail.com',
+        firstName='Test1',
+        password1='test1234',
+        password2='test1234'
+    ), follow_redirects=True)
+    assert response.status_code == 200
+
+    # Log in the user
+    with app.app_context():
+        user = User.query.filter_by(email='test1@gmail.com').first()
+        login_user(user)
+
+        with client.session_transaction() as sess:
+            sess['_user_id'] = str(user.id)
+
+   
+    response = client.post('/carstart', follow_redirects=True)
+    assert response.status_code == 200
+
+
+    assert b'Car Control Dashboard' in response.data
+
+if __name__ == "__main__":
     pytest.main()
