@@ -36,12 +36,12 @@ def create_app():
     def load_user(id):
         return User.query.get(int(id))
 
+    @app.route('/', methods=['GET', 'POST'])
     def rfid_detection_thread():
         while True:
-            if rfid_checker():
-                with app.app_context():
-                    from flask import redirect, url_for
-                    return redirect(url_for('views.home'))
+            if rfid_checker.read():
+                from flask import redirect, url_for
+                return redirect(url_for('views.home'))
             time.sleep(1)
 
     thread = threading.Thread(target=rfid_detection_thread)
