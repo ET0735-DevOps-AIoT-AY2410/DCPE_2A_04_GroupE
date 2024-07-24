@@ -35,11 +35,11 @@ def create_app():
     @login_manager.user_loader
     def load_user(id):
         return User.query.get(int(id))
-
+    
+    @app.readrfid
     def rfid_detection_thread():
         while True:
-            if rfid_checker():
-                with app.app_context():
+            if rfid_checker.read():
                     from flask import redirect, url_for
                     return redirect(url_for('views.home'))
             time.sleep(1)
