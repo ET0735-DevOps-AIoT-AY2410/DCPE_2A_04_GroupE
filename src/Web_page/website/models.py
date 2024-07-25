@@ -1,7 +1,7 @@
 from . import db
 from flask_login import UserMixin
 from sqlalchemy.sql import func
-from werkzeug.security import generate_password_hash, check_password_hash
+
 
 
 class Note(db.Model):
@@ -16,4 +16,8 @@ class User(db.Model, UserMixin):
     email = db.Column(db.String(150), unique=True)
     password = db.Column(db.String(150))
     first_name = db.Column(db.String(150))
+<<<<<<< HEAD
     notes = db.relationship('Note')
+=======
+    notes = db.relationship('Note')
+>>>>>>> ezell
