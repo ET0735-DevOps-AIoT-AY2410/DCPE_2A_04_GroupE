@@ -3,46 +3,19 @@ from .models import User
 from werkzeug.security import generate_password_hash, check_password_hash
 from . import db   ##means from __init__.py import db
 from flask_login import login_user, login_required, logout_user, current_user
+import time
+from time import sleep
 import random
 import string
 import smtplib
 import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
+from website import rfid_checker
 
 auth = Blueprint('auth', __name__)
 
 
-def generate_2fa_code():
-    return ''.join(random.choices(string.ascii_uppercase + string.digits, k=6))
-
-def send_2fa_code(email, code):
-    # Email configuration
-    smtp_server = 'smtp.gmail.com'  # For Gmail
-    smtp_port = 587
-    smtp_username = 'ezelllowgaming@gmail.com'
-    smtp_password = 'T0611022z'  # Consider using environment variables for sensitive data
-
-    # Create the email
-    msg = MIMEMultipart()
-    msg['From'] = smtp_username
-    msg['To'] = email
-    msg['Subject'] = 'Your 2FA Code'
-
-    body = f'Your 2FA code is: {code}'
-    msg.attach(MIMEText(body, 'plain'))
-
-    try:
-        # Connect to the SMTP server and send the email
-        server = smtplib.SMTP(smtp_server, smtp_port)
-        server.starttls()
-        server.login(smtp_username, smtp_password)
-        text = msg.as_string()
-        server.sendmail(smtp_username, email, text)
-        server.quit()
-        print(f"2FA code sent to {email}")
-    except Exception as e:
-        print(f"Failed to send 2FA code: {e}")
 
 @auth.route('/login', methods=['GET', 'POST'])
 def login():
@@ -53,34 +26,15 @@ def login():
         user = User.query.filter_by(email=email).first()
         if user:
             if check_password_hash(user.password, password):
-#                flash('Logged in successfully!', category='success')
-#                login_user(user, remember=True)
-#                return redirect(url_for('views.home'))
-                code = generate_2fa_code()
-                user.two_factor_code = code
-                db.session.commit()
-                send_2fa_code(user.email, code)
-                session['email'] = email
-                return redirect(url_for('auth.verify_2fa'))    
+                flash('Logged in successfully!', category='success')
+                login_user(user, remember=True)
+                return redirect(url_for('views.home'))
             else:
                 flash('Incorrect password, try again.', category='error')
         else:
             flash('Email does not exist.', category='error')
 
     return render_template("login.html", user=current_user)
-
-@auth.route('/verify_2fa', methods=['GET', 'POST'])
-def verify_2fa():
-    if request.method == 'POST':
-        code = request.form.get('code')
-        email = session.get('email')
-        user = User.query.filter_by(email=email).first()
-        if user and user.two_factor_code == code:
-            login_user(user)
-            return redirect(url_for('views.home'))
-        else:
-            flash('Invalid 2FA code.', 'danger')
-    return render_template('verify_2fa.html')
 
 
 @auth.route('/logout')
@@ -121,3 +75,26 @@ def sign_up():
             return redirect(url_for('views.home'))
 
     return render_template("sign_up.html", user=current_user)
+
+
+@auth.route('/rfidcheck', methods=['POST'])
+def rfidcheck():
+    # Scan RFID card for 5 seconds
+    start_time = time.time()
+    while time.time() - start_time < 5:
+        card_id = rfid_checker.read_rfid()
+        if card_id == 830894050716:
+            # Check if the card ID is associated with a user
+            user = User.query.filter_by(email='ezelllow@gmail.com').first()
+            if user:
+                login_user(user, remember=True)
+                return redirect(url_for('views.home'))
+            else:
+                flash('RFID card not associated with any user', category='error')
+                return redirect(url_for('auth.login'))
+    
+    flash('RFID scan timed out', category='error')
+    return redirect(url_for('auth.login'))
+
+
+    

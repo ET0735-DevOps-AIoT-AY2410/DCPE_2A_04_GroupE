@@ -5,7 +5,6 @@ from flask_login import LoginManager
 import threading
 import time
 from website import rfid_checker
-
 db = SQLAlchemy()
 DB_NAME = "database.db"
 
@@ -36,17 +35,6 @@ def create_app():
     def load_user(id):
         return User.query.get(int(id))
 
-    @app.route('/', methods=['GET', 'POST'])
-    def rfid_detection_thread():
-        while True:
-            if rfid_checker.read():
-                from flask import redirect, url_for
-                return redirect(url_for('views.home'))
-            time.sleep(1)
-
-    thread = threading.Thread(target=rfid_detection_thread)
-    thread.daemon = True
-    thread.start()
 
     start_threads()
 

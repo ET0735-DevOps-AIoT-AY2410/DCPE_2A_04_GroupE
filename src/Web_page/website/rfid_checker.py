@@ -1,20 +1,33 @@
-import time
-from website import hal_rfid_reader as rfid
+def init():
+    import hal_rfid_reader
+    from hal_rfid_reader import SimpleMFRC522
+    import RPi.GPIO as GPIO
+    import time 
+    from time import sleep
 
-def read():
-    import time
-    from website import hal_rfid_reader as rfid
-    rfid_reader = rfid.SimpleMFRC522()
-    print("Reading RFID card...")
-    card_id, text = rfid_reader.read()
-    print(f"Card ID: {card_id}")
+def read_rfid():
+    import hal_rfid_reader
+    from hal_rfid_reader import SimpleMFRC522
+    reader = SimpleMFRC522()
 
-    authorized_ids = [830894050716]
-
-
-    if card_id not in authorized_ids:
-        print("RFID authorization failed. Engine start aborted.")
+    try:
+        print("Place your card near the reader...")
+        card_id, text = reader.read()
+        print(f"Card ID: {card_id}")
+        if card_id == 830894050716:
+            print("found")
+    except Exception as e:
+        print(f"Error reading RFID card: {e}")
         return False
-    else:
-        return True
-    
+    return card_id
+
+if __name__ == "__main__":
+    init()
+    import time 
+    from time import sleep
+    while True:
+        result = read_rfid()
+        sleep(2)  # Sleep for 2 seconds to avoid rapid readings
+
+
+
