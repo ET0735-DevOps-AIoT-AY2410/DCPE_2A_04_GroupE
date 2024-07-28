@@ -9,6 +9,17 @@ def client():
         yield client
 
 def test_carstart_button(client):
+    # Simulate logging in first (POST request to /login)
+    login_data = {
+        'email': 'user2@gmail.com',
+        'password': 'pass123'
+    }
+    response = client.post('/login', data=login_data)
+    assert response.status_code == 302  # Check if it redirects correctly
+
+    # Follow the redirect to ensure login was successful
+    client.get(response.headers["Location"], follow_redirects=True)
+
     # Simulate pressing the button (POST request to /carstart)
     response = client.post('/carstart')
     assert response.status_code == 302  # Check if it redirects correctly

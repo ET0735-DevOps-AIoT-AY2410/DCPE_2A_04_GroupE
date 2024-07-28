@@ -35,5 +35,5 @@ def test_signup(client):
     # Print the response data for debugging
     print(redirect_response.data.decode())
     
-    
+    # Adjust this assertion based on the actual content of the redirected page
     assert b"START ENGINE" in redirect_response.data

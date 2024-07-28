@@ -11,7 +11,7 @@ def app():
 def client(app):
     return app.test_client()
 
-def test_lock_button(client):
+def test_theft_warning_displayed(client):
     # Simulate logging in first (POST request to /login)
     login_data = {
         'email': 'user2@gmail.com',
@@ -21,11 +21,15 @@ def test_lock_button(client):
     assert response.status_code == 302  # Check if it redirects correctly
 
     # Follow the redirect to ensure login was successful
-    response = client.get(response.headers["Location"], follow_redirects=True)
+    client.get(response.headers["Location"], follow_redirects=True)
+    
+    # Simulate clicking the start engine button (POST request to /carstart)
+    response = client.post('/carstart', follow_redirects=True)
     assert response.status_code == 200  # Check if the final page loads correctly
-
-    # Simulate pressing the lock button (POST request to /lock_unlock_door)
-    lock_data = {'action': 'lock'}
-    response = client.post('/lock_unlock_door', data=lock_data, follow_redirects=True)
-    assert response.status_code == 200  # Check if the response is successful
-    assert b'"success":true' in response.data  # Verify the presence of success message
+    
+    # Print the response data for debugging
+    print(response.data.decode())
+    
+    # Verify the presence of theft warning text on the final page
+    assert b"Theft Warning" in response.data
+    assert b"Not Triggered" in response.data or b"Triggered" in response.data
