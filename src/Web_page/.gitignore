@@ -4,4 +4,4 @@ website/database.db
 
 # Ignore Python compiled files
 *.pyc
-__pycache__/
+**/__pycache__/
