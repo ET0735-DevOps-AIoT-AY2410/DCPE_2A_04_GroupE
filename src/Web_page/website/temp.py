@@ -1,11 +1,12 @@
-import time
 
-import RPi.GPIO as GPIO
-
-from website import dht11
 
 
 def read_temp_humidity():
+    import time
+
+    import RPi.GPIO as GPIO
+
+    from website import dht11
     GPIO.setmode(GPIO.BCM)
     global dht11_inst
 
