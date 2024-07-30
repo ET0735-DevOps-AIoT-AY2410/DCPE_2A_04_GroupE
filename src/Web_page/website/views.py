@@ -10,8 +10,8 @@ from website import fuel
 from website import Door
 from website import rfid_checker
 from website import ultrasound
+#from __init__ import app
 import RPi.GPIO as GPIO
-
 GPIO.setmode(GPIO.BCM)  # choose BCM mode
 GPIO.setwarnings(False)
 GPIO.setup(18, GPIO.OUT)  # set GPIO 18 as output
@@ -23,6 +23,7 @@ views = Blueprint('views', __name__)
 
 door_status = "closed"
 theft_detected = False
+result = False
 
 @views.route('/', methods=['GET', 'POST'])
 @login_required
@@ -115,6 +116,7 @@ def check_theft():
         else:
             theft_detected = False
         time.sleep(0.1)    
+
 
 
 

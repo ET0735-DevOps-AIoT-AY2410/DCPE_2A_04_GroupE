@@ -1,7 +1,9 @@
-.vscode
-website/__pycache__
-website/database.db
+# Ignore Visual Studio Code settings folder
+.vscode/
 
-# Ignore Python compiled files
+# Ignore Python compiled files and caches
 *.pyc
 **/__pycache__/
+
+# Ignore specific database files
+website/database.db
