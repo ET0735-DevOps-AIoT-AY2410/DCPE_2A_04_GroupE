@@ -27,9 +27,13 @@ def test_theft_warning_displayed(client):
     response = client.post('/carstart', follow_redirects=True)
     assert response.status_code == 200  # Check if the final page loads correctly
     
+    # Simulate clicking the "View" button for theft warning (GET request to /get_door_status)
+    response = client.get('/get_door_status', follow_redirects=True)
+    assert response.status_code == 200  # Check if the response is successful
+    
     # Print the response data for debugging
     print(response.data.decode())
     
-    # Verify the presence of theft warning text on the final page
-    assert b"Theft Warning" in response.data
-    assert b"Not Triggered" in response.data or b"Triggered" in response.data
+    # Verify the presence of theft warning status in the response data
+    assert b"doorStatus" in response.data
+    assert b"theft_status" in response.data

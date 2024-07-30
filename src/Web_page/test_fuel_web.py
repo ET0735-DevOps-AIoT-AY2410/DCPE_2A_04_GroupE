@@ -22,13 +22,17 @@ def test_fuel_level_displayed(client):
 
     # Follow the redirect to ensure login was successful
     client.get(response.headers["Location"], follow_redirects=True)
-    
+
     # Simulate clicking the start engine button (POST request to /carstart)
     response = client.post('/carstart', follow_redirects=True)
     assert response.status_code == 200  # Check if the final page loads correctly
-    
+
+    # Simulate clicking the "View" button for fuel level (GET request to /get_FuelLevel)
+    response = client.get('/get_FuelLevel', follow_redirects=True)
+    assert response.status_code == 200  # Check if the response is successful
+
     # Print the response data for debugging
     print(response.data.decode())
-    
-    # Verify the presence of fuel level text on the final page
-    assert b"Fuel Level" in response.data
+
+    # Verify the presence of fuel value in the response
+    assert b"fuel" in response.data

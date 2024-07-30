@@ -19,6 +19,16 @@ def test_login(client):
     }
     response = client.post('/login', data=login_data)
     
+    # Print the response data for debugging
+    print(response.data.decode())
+    
+    # Check if the login endpoint returned 200 (OK)
+    if response.status_code == 200:
+        # Inspect the response content
+        assert b"Invalid credentials" not in response.data, "Login failed: Invalid credentials"
+        assert b"Login successful" in response.data, "Login successful message not found"
+    
+    # Assert that the response status code is 302 (redirect)
     assert response.status_code == 302  # Check if it redirects correctly
     
     # Follow the redirect
