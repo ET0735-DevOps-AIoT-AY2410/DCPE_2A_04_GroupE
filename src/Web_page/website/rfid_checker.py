@@ -14,7 +14,7 @@ def read_rfid():
         print("Place your card near the reader...")
         card_id, text = reader.read()
         print(f"Card ID: {card_id}")
-        if card_id in [988654710544]:
+        if card_id in [988654710544,830894050716]:
             print("found")
     except Exception as e:
         print(f"Error reading RFID card: {e}")

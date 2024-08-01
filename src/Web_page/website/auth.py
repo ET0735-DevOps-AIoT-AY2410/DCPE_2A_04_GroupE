@@ -83,7 +83,7 @@ def rfidcheck():
     start_time = time.time()
     while time.time() - start_time < 5:
         card_id = rfid_checker.read_rfid()
-        if card_id in [988654710544]:
+        if card_id in [988654710544,830894050716]:
             # Check if the card ID is associated with a user
             user = User.query.filter_by(email='ezelllow@gmail.com').first()
             if user:
