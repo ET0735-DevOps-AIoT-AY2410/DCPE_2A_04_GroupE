@@ -1,0 +1,233 @@
+{% extends "base.html" %}
+
+{% block title %}Car Start{% endblock %}
+
+{% block content %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Car Control Dashboard</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            padding: 20px;
+        }
+        .container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+        }
+        .status-container, .control-container {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            width: 80%;
+            max-width: 600px;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        .status-container {
+            flex-direction: column;
+            gap: 10px;
+        }
+        .control-container {
+            flex-direction: column;
+            gap: 20px;
+        }
+        .lock-buttons {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .lock-buttons button {
+            padding: 10px 20px;
+            font-size: 16px;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+            transition: background-color 0.2s ease;
+            margin: 5px 0;
+            background-color: lightgray; /* Default background color */
+        }
+        .lock-buttons button.selected {
+            background-color: red; /* Background color when selected */
+            color: white; /* Text color when selected */
+        }
+        .aircon-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .aircon-container input {
+            width: 50px;
+            text-align: center;
+        }
+        .theft-warning {
+            font-weight: bold;
+            color: red;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Car Control Dashboard</h1>
+
+        <div class="status-container">
+            <div>
+                <h3>Car Temperature:</h3>
+                <button onclick="viewTemperature()">View</button>
+                <p id="carTemperature"></p>
+            </div>
+            <div>
+                <h3>Fuel Level:</h3>
+                <button onclick="viewFuellevel()">View</button>
+                <p id="FuelLevel"></p>
+            </div>
+            <div>
+                <h3>Theft Warning:</h3>
+                <p id="theftWarning" class="theft-warning">Not Triggered</p>
+            </div>
+
+        </div>
+
+        <div class="control-container">
+            <div class="lock-buttons">
+                <h3>Car Door</h3>
+                <button id="lockButton" class="selected" onclick="toggleLock('lock')">Lock</button>
+                <button id="unlockButton" onclick="toggleLock('unlock')">Unlock</button>
+            </div>
+
+            <div class="aircon-container">
+                <h3>Air Conditioning Temperature:</h3>
+                <input type="number" id="airconInput" value="20">
+                <button onclick="enterAirconTemperature()">Enter</button>
+                <p id="airconTemperature">20°C</p>
+            </div>
+            
+        </div>
+    </div>
+
+    <script>
+        function viewTemperature() {
+            fetch('/get_temperature')
+                .then(response => response.json())
+                .then(data => {
+                    const temperatureElement = document.getElementById('carTemperature');
+                    if (data.temperature !== "Loading...") {
+                        temperatureElement.innerText = `${data.temperature}°C`;
+                    } else {
+                        temperatureElement.innerText = "Loading...";
+                    }
+                })
+                .catch(error => console.error('Error fetching temperature:', error));
+                fetchDoorStatus();
+        }
+
+        function toggleLock(action) {
+            if (action === 'lock') {
+                isLocked = true;
+                document.getElementById('lockButton').classList.add('selected');
+                document.getElementById('unlockButton').classList.remove('selected');
+            } else {
+                isLocked = false;
+                document.getElementById('lockButton').classList.remove('selected');
+                document.getElementById('unlockButton').classList.add('selected');
+            }
+
+            // Send the lock/unlock action to the server
+            fetch('/lock_unlock_door', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ action: action })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    console.log(`Car is now ${isLocked ? 'locked' : 'unlocked'}`);
+                } else {
+                    console.error(`Error: ${data.error}`);
+                }
+            })
+            .catch((error) => {
+                console.error('Error:', error);
+            });
+        }x
+
+        function viewFuellevel() {
+            fetch('/get_FuelLevel')
+                .then(response => response.json())
+                .then(data => {
+                    const fuelElement = document.getElementById('FuelLevel');
+                    if (data.fuel !== "Loading...") {
+                        fuelElement.innerText = `${data.fuel}`;
+                    } else {
+                        fuelElement.innerText = "Loading...";
+                    }
+                })
+                .catch(error => console.error('Error fetching fuel level:', error));
+        }
+        
+        function theftstatus() {
+            fetch('/get_theft_status')
+                .then(response => response.json())
+                .then(data => {
+                    const theftElement = document.getElementById('theftWarning');
+                    if (data.theft !== "Loading...") {
+                        theftElement.innerText = `${data.theft}`;
+                    } else {
+                        theftElement.innerText = "Loading...";
+                    }
+                })
+                .catch(error => console.error('Error fetching theft status:', error));
+        }
+
+        
+        function enterAirconTemperature() {
+            const airconInput = document.getElementById('airconInput').value;
+            fetch('/set_aircon_temperature', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ temperature: airconInput })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    document.getElementById('airconTemperature').innerText = `${airconInput}°C`;
+                } else {
+                    alert('Error setting temperature: ' + data.error);
+                }
+            })
+            .catch((error) => {
+                console.error('Error:', error); 
+            });
+        }
+        
+        function fetchDoorStatus() {
+            fetch('/get_door_status')
+                .then(response => response.json())
+                .then(data => {
+                    const doorStatus = data.door_status;
+                    document.getElementById('doorStatus').innerText = doorStatus;
+                    document.getElementById('theft_status').innerText = data.theft_status;
+                })
+                .catch(error => console.error('Error fetching door status:', error));
+        }
+        
+
+        // Periodically fetch the door status
+        setInterval(fetchDoorStatus, 1000); // Check every 5 seconds
+
+    </script>
+</body>
+</html>
+{% endblock %}
