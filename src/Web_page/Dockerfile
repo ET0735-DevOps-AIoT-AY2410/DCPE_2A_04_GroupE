@@ -1,5 +1,5 @@
 # Use the official Python image from the Docker Hub
-FROM python:3.9
+FROM arm32v&/python:3
 #FROM python:3.9-alpine
 
 # Set the working directory
@@ -25,3 +25,4 @@ EXPOSE 5000
 
 # Run app.py when the container launches
 CMD ["python", "main.py"]
+
