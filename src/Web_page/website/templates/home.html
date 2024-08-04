@@ -1,0 +1,49 @@
+{% extends "base.html" %} {% block title %}Home{% endblock %} {% block content
+%}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Start Car Engine</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            padding: 20px;
+        }
+        .button-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        .big-button {
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            background-color: red;
+            color: white;
+            font-size: 24px;
+            font-weight: bold;
+            border: none;
+            outline: none;
+            cursor: pointer;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+        }
+        .big-button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+        }
+    </style>
+</head>
+<body>
+    <div class="button-container">
+        <form method="post" action="{{ url_for('views.carstart') }}">
+            <button type="submit" class="big-button">START ENGINE</button>
+        </form>
+    </div>
+</body>
+</html>
+{% endblock %}

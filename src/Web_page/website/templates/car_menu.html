@@ -1,0 +1,139 @@
+{% extends "base.html" %}
+
+{% block title %}Car Start{% endblock %}
+
+{% block content %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Car Control Dashboard</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            padding: 20px;
+        }
+        .container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+        }
+        .status-container, .control-container {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            width: 80%;
+            max-width: 600px;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        .status-container {
+            flex-direction: column;
+            gap: 10px;
+        }
+        .control-container {
+            flex-direction: column;
+            gap: 20px;
+        }
+        .lock-buttons {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .lock-buttons button {
+            padding: 10px 20px;
+            font-size: 16px;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+            transition: background-color 0.2s ease;
+            margin: 5px 0;
+            background-color: lightgray; /* Default background color */
+        }
+        .lock-buttons button.selected {
+            background-color: red; /* Background color when selected */
+            color: white; /* Text color when selected */
+        }
+        .aircon-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .aircon-container input {
+            width: 50px;
+            text-align: center;
+        }
+        .theft-warning {
+            font-weight: bold;
+            color: red;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Car Control Dashboard</h1>
+
+        <div class="status-container">
+            <div>
+                <h3>Car Temperature:</h3>
+                <p id="carTemperature">25°C</p>
+            </div>
+            <div>
+                <h3>Fuel Level:</h3>
+                <p id="fuelLevel">50%</p>
+            </div>
+            <div>
+                <h3>Theft Warning:</h3>
+                <p id="theftWarning" class="theft-warning">Not Triggered</p>
+            </div>
+        </div>
+
+        <div class="control-container">
+            <div class="lock-buttons">
+                <h3>Car Door</h3>
+                <form method="post" action="{{ url_for('views.lock_unlock_door') }}">
+                    <button type="submit" name="action" value="lock"  id="lockButton" class="selected" onclick="toggleLock('lock')">Lock</button>
+                    <button type="submit" name="action" value="unlock" id="unlockButton"onclick="toggleLock('unlock')">Unlock</button>
+                </form>
+            </div>
+
+            <div class="aircon-container">
+                <h3>Air Conditioning Temperature:</h3>
+                <input type="number" id="airconInput" value="20">
+                <button onclick="enterAirconTemperature()">Enter</button>
+                <p id="airconTemperature">20°C</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let isLocked = false;
+
+        // Load the air conditioning temperature from local storage on startup
+        document.addEventListener('DOMContentLoaded', (event) => {
+            const savedTemperature = localStorage.getItem('airconTemperature');
+            if (savedTemperature) {
+                document.getElementById('airconInput').value = savedTemperature;
+                document.getElementById('airconTemperature').innerText = `${savedTemperature}°C`;
+            }
+        });
+
+        function enterAirconTemperature() {
+            const airconInput = document.getElementById('airconInput');
+            const airconTemperature = airconInput.value;
+            document.getElementById('airconTemperature').innerText = `${airconTemperature}°C`;
+            localStorage.setItem('airconTemperature', airconTemperature); // Save to local storage
+            console.log(`Aircon Temperature set to ${airconTemperature}°C`);
+        }
+
+
+
+    </script>
+</body>
+</html>
+{% endblock %}  

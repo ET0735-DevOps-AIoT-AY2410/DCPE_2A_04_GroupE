@@ -1,4 +1,17 @@
 import time
+<<<<<<< HEAD
+from hal import hal_lcd as lcd
+from hal import hal_temp_humidity_sensor as TEMP_HUMIDITY
+from hal import hal_keypad as KEYPAD
+
+
+tempvalue = []
+optionvalue = [] 
+
+
+
+
+=======
 import RPi.GPIO as GPIO
 from hal import hal_lcd as lcd
 from hal import hal_temp_humidity_sensor as TEMP_HUMIDITY
@@ -25,6 +38,7 @@ def set_output(tempvalue):
         print("Temperature level must be between 0 and 40")
         
     
+>>>>>>> bug-fix-harene
 
 
 def enter_desired_temperature():
@@ -53,10 +67,13 @@ def main():
     lcd = lcd.lcd()  #init lcd
     TEMP_HUMIDITY.init() #init sensor
     KEYPAD.init() #initialise keypad
+<<<<<<< HEAD
+=======
     LED.init() #initialise led
     global pwm
     pwm = GPIO.PWM(24, 1000) # Initialize PWM on the GPIO pin with a frequency of 1000 Hz
     pwm.start(0)  # Start PWM with 0% duty cycle (LED off)
+>>>>>>> bug-fix-harene
     
     # The display menu please fill in the main menu codes here !!
     lcd.write_line(0, "Enter 2 to control aircon")
@@ -66,9 +83,12 @@ def main():
     optionvalue.append(option)
     if optionvalue == "2":  #if option 2 is chosen to control aircon temp
         enter_desired_temperature()
+<<<<<<< HEAD
+=======
         set_output()
 
     
+>>>>>>> bug-fix-harene
 
 if __name__ == "__main__":
     main()
