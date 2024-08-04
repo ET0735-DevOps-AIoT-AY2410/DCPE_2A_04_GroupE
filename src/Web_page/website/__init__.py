@@ -35,6 +35,7 @@ def create_app():
     def load_user(id):
         return User.query.get(int(id))
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 =======
     
@@ -50,6 +51,10 @@ def create_app():
     thread.daemon = True
     thread.start()
 >>>>>>> ezell
+=======
+    
+
+>>>>>>> 4b6fe53c825ce7d954f416809c15d66870dcd655
 
     start_threads()
 
