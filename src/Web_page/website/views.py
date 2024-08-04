@@ -6,7 +6,7 @@ from flask import Flask, render_template
 import threading
 import time
 from website import temp
-#from website import fuel
+from website import fuel
 from website import Door
 from website import rfid_checker
 from website import ultrasound
@@ -53,11 +53,11 @@ def get_temperature():
     temperature = temp.read_temp_humidity()
     return jsonify({'temperature': temperature})
     
-#@views.route('/get_FuelLevel')
-#@login_required
-#def get_FuelLevel():
-#    FuelLevel = fuel.get_fuel_level(0)
-#    return jsonify({'fuel': FuelLevel})
+@views.route('/get_FuelLevel')
+@login_required
+def get_FuelLevel():
+    FuelLevel = fuel.get_fuel_level(0)
+    return jsonify({'fuel': FuelLevel})
 
 @views.route('/set_aircon_temperature', methods=['POST'])
 @login_required
