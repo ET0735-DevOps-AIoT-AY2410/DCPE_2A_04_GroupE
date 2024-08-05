@@ -15,7 +15,7 @@ WORKDIR $SPI_PATH
 RUN python3 setup.py install
 #RUN apt-get install raspi-config
 #RUN raspi-config
-RUN pip install rpi.gpio
+RUN pip install --no-cache-dir rpi.gpio
 
 WORKDIR /app
 RUN pip install --no-cache-dir -r requirements.txt
