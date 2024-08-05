@@ -2,16 +2,13 @@ from flask import Blueprint, render_template, request, redirect, url_for, flash,
 from flask_login import login_required, current_user
 import json
 import subprocess
-from flask import Flask, render_template
+from flask import  render_template
 import threading
 import time
 from website import temp
 from website import fuel
 from website import Door
-from website import rfid_checker
 from website import ultrasound
-from website import engine_sim
-from website import aircon
 import subprocess
 from website import buzzer
 from website import switch 
@@ -108,7 +105,6 @@ def check_theft():
         else:
             theft_detected = False
         time.sleep(0.1)  
-
 
 
 

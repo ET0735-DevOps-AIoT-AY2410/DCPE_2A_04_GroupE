@@ -26,7 +26,7 @@ def main(temp):
     pwm.ChangeDutyCycle(brightness)
     
     # Keep the brightness for a while, adjust according to your needs
-    time.sleep(10)
+    time.sleep(5)
     
     pwm.stop()
     GPIO.cleanup()

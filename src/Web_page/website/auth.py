@@ -1,16 +1,10 @@
-from flask import Blueprint, render_template, request, flash, redirect, url_for , session
+from flask import Blueprint, render_template, request, flash, redirect, url_for 
 from .models import User
 from werkzeug.security import generate_password_hash, check_password_hash
 from . import db   ##means from __init__.py import db
 from flask_login import login_user, login_required, logout_user, current_user
 import time
 from time import sleep
-import random
-import string
-import smtplib
-import smtplib
-from email.mime.text import MIMEText
-from email.mime.multipart import MIMEMultipart
 from website import rfid_checker
 
 auth = Blueprint('auth', __name__)
