@@ -1,5 +1,5 @@
 # Use the official Python image from the Docker Hub
-FROM arm32v&/python:3
+FROM arm32v7/python:3
 #FROM python:3.9-alpine
 
 # Set the working directory
