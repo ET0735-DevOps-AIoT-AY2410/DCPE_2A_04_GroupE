@@ -10,12 +10,11 @@ from website import fuel
 from website import Door
 from website import rfid_checker
 from website import ultrasound
-#from __init__ import app
-import RPi.GPIO as GPIO
-GPIO.setmode(GPIO.BCM)  # choose BCM mode
-GPIO.setwarnings(False)
-GPIO.setup(18, GPIO.OUT)  # set GPIO 18 as output
-GPIO.setup(22,GPIO.IN) #set GPIO 22 as input
+from website import engine_sim
+from website import aircon
+import subprocess
+from website import buzzer
+from website import switch 
 
     
 views = Blueprint('views', __name__)
@@ -23,7 +22,6 @@ views = Blueprint('views', __name__)
 
 door_status = "closed"
 theft_detected = False
-result = False
 
 @views.route('/', methods=['GET', 'POST'])
 @login_required
@@ -101,21 +99,15 @@ def lock_unlock_door():
 
 
 def check_theft():
-    global theft_detected, door_status, rfid_detected
+    global theft_detected, door_status
     while True:
-        if door_status == "locked" and GPIO.input(22) == GPIO.LOW:  # Assuming switch is active low
-            GPIO.output(18, GPIO.HIGH)
-            theft_detected = True
-            time.sleep(5)  # Buzzer active for 5 seconds
-            GPIO.output(18, GPIO.LOW)
+        if door_status == "locked" and switch.switch_Status() == 1:  # Assuming switch is active low
+            theft_detected = buzzer.buzzer_on()
         if door_status == "locked" and ultrasound.get_distance()<10:
-            GPIO.output(18, GPIO.HIGH)
-            theft_detected = True
-            time.sleep(5)  # Buzzer active for 5 seconds  
-            GPIO.output(18, GPIO.LOW)          
+            theft_detected = buzzer.buzzer_on()  
         else:
             theft_detected = False
-        time.sleep(0.1)    
+        time.sleep(0.1)  
 
 
 

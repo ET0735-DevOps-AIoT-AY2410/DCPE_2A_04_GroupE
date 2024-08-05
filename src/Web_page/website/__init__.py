@@ -4,7 +4,6 @@ from os import path
 from flask_login import LoginManager
 import threading
 import time
-from website import rfid_checker
 db = SQLAlchemy()
 DB_NAME = "database.db"
 
@@ -22,7 +21,7 @@ def create_app():
     app.register_blueprint(views, url_prefix='/')
     app.register_blueprint(auth, url_prefix='/')
 
-    from .models import User, Note
+    from .models import User
     
     with app.app_context():
         db.create_all()
@@ -34,27 +33,7 @@ def create_app():
     @login_manager.user_loader
     def load_user(id):
         return User.query.get(int(id))
-<<<<<<< HEAD
-<<<<<<< HEAD
 
-=======
-    
-    @app.readrfid
-    def rfid_detection_thread():
-        while True:
-            if rfid_checker.read():
-                    from flask import redirect, url_for
-                    return redirect(url_for('views.home'))
-            time.sleep(1)
-
-    thread = threading.Thread(target=rfid_detection_thread)
-    thread.daemon = True
-    thread.start()
->>>>>>> ezell
-=======
-    
-
->>>>>>> 4b6fe53c825ce7d954f416809c15d66870dcd655
 
     start_threads()
 
