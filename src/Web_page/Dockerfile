@@ -16,6 +16,8 @@ RUN python3 setup.py install
 #RUN apt-get install raspi-config
 #RUN raspi-config
 RUN pip install --no-cache-dir rpi.gpio
+RUN pip install --no-cache-dir smbus
+RUN pip install --no-cache-dir spidev
 
 WORKDIR /app
 RUN pip install --no-cache-dir -r requirements.txt
