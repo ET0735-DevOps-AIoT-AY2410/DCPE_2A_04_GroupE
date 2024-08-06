@@ -12,6 +12,8 @@ from website import ultrasound
 import subprocess
 from website import buzzer
 from website import switch 
+from website import engine_sim
+from website import aircon
 
     
 views = Blueprint('views', __name__)
@@ -28,14 +30,7 @@ def home():
 @views.route('/carstart', methods=['POST'])
 @login_required
 def carstart():
-    # Run the engine_sim.py script
-    try:
-        result = subprocess.run(["python", "engine_sim.py"], check=True, capture_output=True, text=True)
-        print(result.stdout)
-        flash('Engine started successfully!', category='success')
-    except subprocess.CalledProcessError as e:
-        print(e.stderr)
-        flash(f'Error starting engine: {e}', category='error')
+    engine_sim.main()
     return redirect(url_for('views.car_menu'))
 
 @views.route('/car_menu')
@@ -56,22 +51,16 @@ def get_FuelLevel():
     FuelLevel = fuel.get_fuel_level(0)
     return jsonify({'fuel': FuelLevel})
 
+
 @views.route('/set_aircon_temperature', methods=['POST'])
 @login_required
 def set_aircon_temperature():
-    try:
-        data = request.get_json()
-        temperature = data['temperature']
-        
-        # Call the aircon.py script with the temperature argument
-        result = subprocess.run(['python3', 'aircon.py', str(temperature)], capture_output=True, text=True)
-        
-        if result.returncode == 0:
-            return jsonify({'success': True})
-        else:
-            return jsonify({'success': False, 'error': result.stderr}), 500
-    except Exception as e:
-        return jsonify({'success': False, 'error': str(e)}), 500
+    
+    data = request.get_json()
+    temperature = data['temperature']
+    aircon.main(temperature)
+    
+    return jsonify({'success': True})
     
 @views.route('/get_door_status', methods=['GET'])
 @login_required
