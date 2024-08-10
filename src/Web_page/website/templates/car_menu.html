@@ -93,10 +93,7 @@
                 <h3>Theft Warning:</h3>
                 <p id="theftWarning" class="theft-warning">Not Triggered</p>
             </div>
-            <div>
-                <h3>Door Status:</h3>
-                <p id="doorStatus">Loading...</p>
-            </div>
+
         </div>
 
         <div class="control-container">
@@ -178,19 +175,7 @@
                 .catch(error => console.error('Error fetching fuel level:', error));
         }
         
-        function theftstatus() {
-            fetch('/get_theft_status')
-                .then(response => response.json())
-                .then(data => {
-                    const theftElement = document.getElementById('theftWarning');
-                    if (data.theft !== "Loading...") {
-                        theftElement.innerText = `${data.theft}`;
-                    } else {
-                        theftElement.innerText = "Loading...";
-                    }
-                })
-                .catch(error => console.error('Error fetching theft status:', error));
-        }
+
 
         
         function enterAirconTemperature() {
