@@ -200,20 +200,27 @@
             });
         }
         
-        function fetchDoorStatus() {
-            fetch('/get_door_status')
+        function updateTheftStatus() {
+            fetch('/get_theft_status')
                 .then(response => response.json())
                 .then(data => {
-                    const doorStatus = data.door_status;
-                    document.getElementById('doorStatus').innerText = doorStatus;
-                    document.getElementById('theft_status').innerText = data.theft_status;
+                    const theftWarningElement = document.getElementById('theftWarning');
+                    theftWarningElement.innerText = data.theft_status;
+
+                    if (data.theft_status === "Detected") {
+                        theftWarningElement.style.color = 'red';
+                    } else {
+                        theftWarningElement.style.color = 'green';
+                    }
                 })
-                .catch(error => console.error('Error fetching door status:', error));
+                .catch(error => console.error('Error fetching theft status:', error));
         }
         
+        // Periodically check the theft status every second
+        setInterval(updateTheftStatus, 1000);
 
-        // Periodically fetch the door status
-        setInterval(fetchDoorStatus, 1000); // Check every 5 seconds
+        // Initial call to display the current status immediately when the page loads
+        updateTheftStatus();
 
     </script>
 </body>

@@ -62,11 +62,10 @@ def set_aircon_temperature():
     
     return jsonify({'success': True})
     
-@views.route('/get_door_status', methods=['GET'])
-@login_required
-def get_door_status():
-    global door_status, theft_detected
-    return jsonify({"doorStatus": door_status, "theft_status": "Detected" if theft_detected else "Not Triggered"})
+@views.route('/get_theft_status', methods=['GET'])
+def get_theft_status():
+    global theft_detected
+    return jsonify({'theft_status': "Detected" if theft_detected else "Not Triggered"})
 
 @views.route('/lock_unlock_door', methods=['POST'])
 def lock_unlock_door():
